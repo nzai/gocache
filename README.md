@@ -118,8 +118,8 @@ func GetValue(request *Request) (*Response, error) {
     return &Response{Name:"n1", Value:"v1"}
 }
 
-mc := gocache.NewMemoryCache[*Response*](10 * time.Minute)
-lc := gocache.NewLoadableCache[*Request*, *Response](mc)
+mc := gocache.NewMemoryCache[*Response](10 * time.Minute)
+lc := gocache.NewLoadableCache[*Request, *Response](mc)
 
 request := &Request{ID: "id1"}
 response, err := lc.Load(GetValue, request)
@@ -152,7 +152,7 @@ client := redis.NewClient(&redis.Options{
     Addr: "127.0.0.1:6379",
 })
 
-lc := gocache.NewLoadableL2Cache[*Request*, *Response](client, 1*time.Minute)
+lc := gocache.NewLoadableL2Cache[*Request, *Response](client, 1*time.Minute)
 
 ctx := context.Background()
 request := &Request{ID: "id1"}

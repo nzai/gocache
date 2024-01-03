@@ -1,30 +1,29 @@
 # gocache
 golang loadable cache
 
-## Features
+## 特点
 
-* ✅ Multiple built-in caches that can be used individually or in combination
-* ✅ Use of generic types to avoid duplicate code and type-safe.
-* ✅ Draws on the best of [gocache](https://github.com/eko/gocache) and [go-zero](https://github.com/zeromicro/go-zero) cache designs.
-* ✅ Has been used in production environments, stable and reliable
+* ✅ 多个内置的缓存，可以单独使用也可以组合
+* ✅ 使用泛型，避免重复代码并且类型安全
+* ✅ 博采众长，参考了[gocache](https://github.com/eko/gocache)及[go-zero](https://github.com/zeromicro/go-zero)缓存设计的优点
+* ✅ 已在生产环境使用，稳定可靠
 
-## Built-in cache
+## 内置的缓存
 
-* [Memroy](memory_cache.go) (local memory based cache)
-* [Redis](redis_cache.go) (github.com/redis/go-redis/v9 based cache)
-* [ChainCache](chain_cache.go) (chained cache, can combine Memory and Redis)
-* [LoadableCache)](loadable_cache) (auto-updatable cache)
-* [LoadableL2Cache](loadable_l2_cache.go) (cache that combines Loadable and ChainCache)
+* [Memroy](memory_cache.go) (基于本地内存的缓存)
+* [Redis](redis_cache.go) (基于github.com/redis/go-redis/v9的缓存)
+* [ChainCache](chain_cache.go) (链式缓存，可以组合Memory和Redis)
+* [LoadableCache)](loadable_cache) (可自动更新的缓存)
+* [LoadableL2Cache](loadable_l2_cache.go) (整合Loadable和ChainCache的缓存)
 
-# Installation
+# 安装
 
 ```
 go get github.com/nzai/gocache
 ```
 
-## Usage
-
-### Use in-memory cache
+## 使用
+### 使用内存缓存
 
 ```go
 import (
@@ -38,12 +37,12 @@ func main() {
     ctx := context.Background()
     mc := gocache.NewMemoryCache[string](10 * time.Second)
     err := mc.Set(ctx, "key1", "v1")
-    if err ! = nil {
+    if err != nil {
         log.Fatalf("failed to set cache value due to %v", err)
     }
 
     got, err := mc.Get(ctx, "key1")
-    Get(ctx, "key1") if err ! = nil {
+    if err != nil {
         log.Fatalf("failed to get cache value due to %v", err)
     }
 
@@ -51,7 +50,7 @@ func main() {
 }
 ```
 
-### in-memory caching objects
+### 使用内存缓存对象
 
 ```go
 type User struct {
@@ -62,7 +61,7 @@ type User struct {
 mc := gocache.NewMemoryCache[*User](30 * time.Second)
 ```
 
-### Use Redis cache
+### 使用Redis缓存
 
 ```go
 import (
@@ -77,7 +76,7 @@ client := redis.NewClient(&redis.Options{
 rc := gocache.NewRedisCache[*User](client, 30 * time.Second)
 ```
 
-### Use ChainCache
+### 使用ChainCache构造二级缓存
 
 ```go
 import (
@@ -94,7 +93,7 @@ rc := gocache.NewRedisCache[string](client, 30 * time.Second)
 cc := gocache.NewChainCache[string](mc, rc)
 ```
 
-### Use LoadableCache
+### 使用LoadableCache
 
 ```go
 import (
@@ -124,7 +123,7 @@ if err != nil {
 }
 ```
 
-### Use LoadableL2Cache
+### 使用LoadableL2Cache
 
 ```go
 import (

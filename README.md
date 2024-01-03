@@ -1,5 +1,5 @@
 # gocache
-golang loadable cache   [中文说明](README_CN)
+golang loadable cache   [中文说明](README_CN.md)
 
 
 ## Features

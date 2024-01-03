@@ -28,9 +28,9 @@ go get github.com/nzai/gocache
 ```go
 import (
     "context"
-	"time"
+    "time"
 
-	"github.com/nzai/gocache"
+    "github.com/nzai/gocache"
 )
 
 func main() {
@@ -65,7 +65,7 @@ mc := gocache.NewMemoryCache[*User](30 * time.Second)
 
 ```go
 import (
-	"github.com/nzai/gocache"
+    "github.com/nzai/gocache"
     "github.com/redis/go-redis/v9"
 )
 
@@ -80,7 +80,7 @@ rc := gocache.NewRedisCache[*User](client, 30 * time.Second)
 
 ```go
 import (
-	"github.com/nzai/gocache"
+    "github.com/nzai/gocache"
     "github.com/redis/go-redis/v9"
 )
 
@@ -97,7 +97,7 @@ cc := gocache.NewChainCache[string](mc, rc)
 
 ```go
 import (
-	"github.com/nzai/gocache"
+    "github.com/nzai/gocache"
 )
 
 type Request struct {
@@ -127,7 +127,7 @@ if err != nil {
 
 ```go
 import (
-	"github.com/nzai/gocache"
+    "github.com/nzai/gocache"
 )
 
 type Request struct {

@@ -6,14 +6,17 @@ golang loadable cache
 * ✅ 多个内置的缓存，可以单独使用也可以组合
 * ✅ 使用泛型，避免重复代码并且类型安全
 * ✅ 博采众长，参考了[gocache](https://github.com/eko/gocache)及[go-zero](https://github.com/zeromicro/go-zero)缓存设计的优点
-* ✅ 已在生产环境使用，稳定可靠
+* ✅ 防击穿：singleflight设计保证只有一个请求访问后端
+* ✅ 防雪崩：缓存过期时间随机化，避免同一时间大量缓存失效
+* ✅ 可配置：可自定义缓存key，缓存配置参数可修改
+* ✅ 稳定可靠：已在生产环境使用
 
 ## 内置的缓存
 
 * [Memroy](memory_cache.go) (基于本地内存的缓存)
 * [Redis](redis_cache.go) (基于github.com/redis/go-redis/v9的缓存)
 * [ChainCache](chain_cache.go) (链式缓存，可以组合Memory和Redis)
-* [LoadableCache)](loadable_cache) (可自动更新的缓存)
+* [LoadableCache](loadable_cache) (可自动更新的缓存)
 * [LoadableL2Cache](loadable_l2_cache.go) (整合Loadable和ChainCache的缓存)
 
 # 安装

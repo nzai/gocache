@@ -5,16 +5,19 @@ golang loadable cache   [中文说明](README_CN.md)
 ## Features
 
 * ✅ Multiple built-in caches that can be used individually or in combination
-* ✅ Use of generic types to avoid duplicate code and type-safe.
-* ✅ Draws on the best of [gocache](https://github.com/eko/gocache) and [go-zero](https://github.com/zeromicro/go-zero) cache designs.
-* ✅ Has been used in production environments, stable and reliable
+* ✅ Use generics to avoid duplicate code and be type safe.
+* ✅ Drawing on the strengths of [gocache](https://github.com/eko/gocache) and [go-zero](https://github.com/zeromicro/go-zero) cache designs.
+* ✅ Breakthrough proof: singleflight design ensures that only one request accesses the backend
+* ✅ Avalanche-proof: cache expiration time is randomized to avoid a large number of cache failures at the same time
+* ✅ Configurable: customizable cache key, cache configuration parameters can be modified
+* ✅ Stable and reliable: already used in production environments
 
 ## Built-in cache
 
 * [Memroy](memory_cache.go) (local memory based cache)
 * [Redis](redis_cache.go) (github.com/redis/go-redis/v9 based cache)
 * [ChainCache](chain_cache.go) (chained cache, can combine Memory and Redis)
-* [LoadableCache)](loadable_cache) (auto-updatable cache)
+* [LoadableCache](loadable_cache) (auto-updatable cache)
 * [LoadableL2Cache](loadable_l2_cache.go) (cache that combines Loadable and ChainCache)
 
 # Installation

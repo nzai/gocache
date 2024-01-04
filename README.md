@@ -14,11 +14,11 @@ golang loadable cache   [中文说明](README_CN.md)
 
 ## Built-in cache
 
-* [Memroy](memory_cache.go) (local memory based cache)
-* [Redis](redis_cache.go) (github.com/redis/go-redis/v9 based cache)
-* [ChainCache](chain_cache.go) (chained cache, can combine Memory and Redis)
-* [LoadableCache](loadable_cache) (auto-updatable cache)
-* [LoadableL2Cache](loadable_l2_cache.go) (cache that combines Loadable and ChainCache)
+* [MemroyCache](memory_cache.go) (local memory based cache)
+* [RedisCache](redis_cache.go) (github.com/redis/go-redis/v9 based cache)
+* [ChainCache](chain_cache.go) (chained cache, can combine MemoryCache and RedisCache)
+* [LoadableCache](loadable_cache) (auto-loadable cache)
+* [LoadableL2Cache](loadable_l2_cache.go) (cache that combines LoadableCache and ChainCache)
 
 # Installation
 
@@ -28,7 +28,7 @@ go get github.com/nzai/gocache
 
 ## Usage
 
-### Use in-memory cache
+### Use MemoryCache
 
 ```go
 import (
@@ -55,7 +55,7 @@ func main() {
 }
 ```
 
-### in-memory caching objects
+### MemoryCache caching objects
 
 ```go
 type User struct {
@@ -66,7 +66,7 @@ type User struct {
 mc := gocache.NewMemoryCache[*User](30 * time.Second)
 ```
 
-### Use Redis cache
+### Use RedisCache
 
 ```go
 import (
@@ -84,11 +84,6 @@ rc := gocache.NewRedisCache[*User](client, 30 * time.Second)
 ### Use ChainCache
 
 ```go
-import (
-    "github.com/nzai/gocache"
-    "github.com/redis/go-redis/v9"
-)
-
 client := redis.NewClient(&redis.Options{
     Addr: "127.0.0.1:6379",
 })
@@ -101,10 +96,6 @@ cc := gocache.NewChainCache[string](mc, rc)
 ### Use LoadableCache
 
 ```go
-import (
-    "github.com/nzai/gocache"
-)
-
 type Request struct {
     ID string
 }
@@ -131,11 +122,6 @@ if err != nil {
 ### Use LoadableL2Cache
 
 ```go
-import (
-    "github.com/nzai/gocache"
-    "github.com/redis/go-redis/v9"
-)
-
 type Request struct {
     ID string
 }

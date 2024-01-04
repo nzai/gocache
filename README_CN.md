@@ -13,11 +13,11 @@ golang loadable cache
 
 ## 内置的缓存
 
-* [Memroy](memory_cache.go) (基于本地内存的缓存)
-* [Redis](redis_cache.go) (基于github.com/redis/go-redis/v9的缓存)
-* [ChainCache](chain_cache.go) (链式缓存，可以组合Memory和Redis)
+* [MemroyCache](memory_cache.go) (基于本地内存的缓存)
+* [RedisCache](redis_cache.go) (基于github.com/redis/go-redis/v9的缓存)
+* [ChainCache](chain_cache.go) (链式缓存，可以组合MemoryCache和RedisCache)
 * [LoadableCache](loadable_cache) (可自动更新的缓存)
-* [LoadableL2Cache](loadable_l2_cache.go) (整合Loadable和ChainCache的缓存)
+* [LoadableL2Cache](loadable_l2_cache.go) (整合LoadableCache和ChainCache的缓存)
 
 # 安装
 
@@ -82,11 +82,6 @@ rc := gocache.NewRedisCache[*User](client, 30 * time.Second)
 ### 使用ChainCache构造二级缓存
 
 ```go
-import (
-    "github.com/nzai/gocache"
-    "github.com/redis/go-redis/v9"
-)
-
 client := redis.NewClient(&redis.Options{
     Addr: "127.0.0.1:6379",
 })
@@ -99,10 +94,6 @@ cc := gocache.NewChainCache[string](mc, rc)
 ### 使用LoadableCache
 
 ```go
-import (
-    "github.com/nzai/gocache"
-)
-
 type Request struct {
     ID string
 }
@@ -129,11 +120,6 @@ if err != nil {
 ### 使用LoadableL2Cache
 
 ```go
-import (
-    "github.com/nzai/gocache"
-    "github.com/redis/go-redis/v9"
-)
-
 type Request struct {
     ID string
 }

@@ -133,6 +133,7 @@ if err != nil {
 ```go
 import (
     "github.com/nzai/gocache"
+    "github.com/redis/go-redis/v9"
 )
 
 type Request struct {

@@ -6,14 +6,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/zeromicro/go-zero/core/collection"
+	"github.com/nzai/timewheel"
 )
 
 type MemoryCache[T any] struct {
 	config      *CacheConfig
 	data        map[string]T
 	lock        *sync.Mutex
-	timingWheel *collection.TimingWheel
+	timingWheel *timewheel.TimeWheel
 	expiration  time.Duration
 }
 
@@ -29,13 +29,10 @@ func NewMemoryCache[T any](expiration time.Duration, options ...CacheOption) *Me
 		option(s.config)
 	}
 
-	s.timingWheel, _ = collection.NewTimingWheel(time.Second, 500, func(k, v any) {
-		key, ok := k.(string)
-		if !ok {
-			return
-		}
-
-		s.Delete(key)
+	s.timingWheel = timewheel.NewTimeWheel(expiration/2, 60, func(key string, value any) {
+		s.lock.Lock()
+		delete(s.data, key)
+		s.lock.Unlock()
 	})
 
 	return s
@@ -52,10 +49,12 @@ func (s *MemoryCache[T]) Set(ctx context.Context, key string, value T) error {
 	s.lock.Unlock()
 
 	if found {
-		return s.timingWheel.MoveTimer(key, expiration)
+		s.timingWheel.Move(key, expiration)
+		return nil
 	}
 
-	return s.timingWheel.SetTimer(key, value, expiration)
+	s.timingWheel.Set(key, value, expiration)
+	return nil
 }
 
 func (s MemoryCache[T]) Get(ctx context.Context, key string) (T, error) {
@@ -74,7 +73,7 @@ func (s MemoryCache[T]) Delete(key string) error {
 	s.lock.Lock()
 	delete(s.data, key)
 	s.lock.Unlock()
-	s.timingWheel.RemoveTimer(key)
+	s.timingWheel.Delete(key)
 
 	return nil
 }

@@ -2,10 +2,10 @@ package gocache
 
 import (
 	"context"
+	"encoding/json"
 	"math/rand"
 	"time"
 
-	"github.com/bytedance/sonic"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -30,7 +30,7 @@ func NewRedisCache[T any](client *redis.Client, expiration time.Duration, option
 }
 
 func (s RedisCache[T]) Set(ctx context.Context, key string, value T) error {
-	marshaled, err := sonic.MarshalString(value)
+	marshaled, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (s RedisCache[T]) Set(ctx context.Context, key string, value T) error {
 		key = s.config.Prefix + key
 	}
 
-	return s.client.Set(ctx, key, marshaled, expiration).Err()
+	return s.client.Set(ctx, key, string(marshaled), expiration).Err()
 }
 
 func (s RedisCache[T]) Get(ctx context.Context, key string) (value T, err error) {
@@ -59,7 +59,7 @@ func (s RedisCache[T]) Get(ctx context.Context, key string) (value T, err error)
 		return value, err
 	}
 
-	err = sonic.UnmarshalString(marshaled, &value)
+	err = json.Unmarshal([]byte(marshaled), &value)
 	if err != nil {
 		return value, err
 	}

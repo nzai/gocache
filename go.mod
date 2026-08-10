@@ -3,7 +3,7 @@ module github.com/nzai/gocache
 go 1.24
 
 require (
-	github.com/nzai/timewheel v0.1.0
+	github.com/nzai/timewheel v0.1.1
 	github.com/redis/go-redis/v9 v9.22.0
 )
 

@@ -10,6 +10,8 @@ github.com/klauspost/cpuid/v2 v2.2.10 h1:tBs3QSyvjDyFTq3uoc/9xFpCuOsJQFNPiAhYdw2
 github.com/klauspost/cpuid/v2 v2.2.10/go.mod h1:hqwkgyIinND0mEev00jJYCxPNVRVXFQeu1XKlok6oO0=
 github.com/nzai/timewheel v0.1.0 h1:QIL9pxCO9jcIKGAc2IkvFYKZeZZN3+K10ld+JTtb8xQ=
 github.com/nzai/timewheel v0.1.0/go.mod h1:fQ94jZYDuBICZfc1qX/xGxT6SHTW4VZpwjAOWUt0ZSc=
+github.com/nzai/timewheel v0.1.1 h1:o175LRBBNBV+JSLiKSvCdWqQYp0e8dM84zHRQYZQ4KI=
+github.com/nzai/timewheel v0.1.1/go.mod h1:fQ94jZYDuBICZfc1qX/xGxT6SHTW4VZpwjAOWUt0ZSc=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/redis/go-redis/v9 v9.22.0 h1:laDvpYXTJtZLloinw1fA5Kqd6HAEH2XKxOkG/PDq2F0=

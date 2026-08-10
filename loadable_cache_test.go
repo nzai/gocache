@@ -74,7 +74,10 @@ func TestLoadableCache_LoadFromMultiCaches_string(t *testing.T) {
 				t.Errorf("LoadableCache.Load() got = %v, want = %v", response, "")
 			}
 
-			time.Sleep(time.Duration(float64(expiration) * float64(1+ExpiryDeviation)))
+			// wait until the cache entry expires: the timing wheel fires the
+			// entry within one base interval (expiration/10) after its
+			// expiration, so 1.25x the expiration covers the worst case
+			time.Sleep(time.Duration(float64(expiration) * 1.25))
 
 			response, err = lc.Load(a.Get, tt.name)
 			if err != nil {
@@ -140,7 +143,10 @@ func TestLoadableCache_LoadFromMultiCaches_StructPointer(t *testing.T) {
 				t.Errorf("LoadableCache.Load() got = %v, want = %v", response.Value, 1)
 			}
 
-			time.Sleep(time.Duration(float64(expiration) * float64(1+ExpiryDeviation)))
+			// wait until the cache entry expires: the timing wheel fires the
+			// entry within one base interval (expiration/10) after its
+			// expiration, so 1.25x the expiration covers the worst case
+			time.Sleep(time.Duration(float64(expiration) * 1.25))
 
 			response, err = lc.Load(s.Get, &getRequest{ID: tt.name})
 			if err != nil {
@@ -216,7 +222,10 @@ func TestLoadableCache_LoadFromMultiCaches_InParallel(t *testing.T) {
 				}
 			})
 
-			time.Sleep(time.Duration(float64(expiration) * float64(1+ExpiryDeviation)))
+			// wait until the cache entry expires: the timing wheel fires the
+			// entry within one base interval (expiration/10) after its
+			// expiration, so 1.2x the expiration covers the worst case
+			time.Sleep(time.Duration(float64(expiration) * 1.2))
 
 			parallelRun(parallel, func() {
 				response, err := lc.Load(s.Get, &getRequest{ID: tt.name})

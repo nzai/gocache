@@ -45,9 +45,11 @@ func NewMemoryCache[T any](expiration time.Duration, options ...CacheOption) *Me
 		option(s.config)
 	}
 
-	// keep the timing wheel ticking at a sane positive interval,
-	// a too-small interval would make the ticker busy-loop
-	baseInterval := expiration / 2
+	// keep the timing wheel ticking at a sane positive interval, a too-small
+	// interval would make the ticker busy-loop; the wheel fires entries
+	// within one interval after their expiration, so a small interval keeps
+	// the actual expiration close to the nominal one
+	baseInterval := expiration / 10
 	if baseInterval < time.Millisecond {
 		baseInterval = time.Millisecond
 	}

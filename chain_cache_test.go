@@ -47,9 +47,7 @@ func TestChainCache_SetAndGet(t *testing.T) {
 	}}
 
 	ms := NewMemoryCache[string](msExpiration)
-	client := redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-	})
+	client := requireRedis(t)
 
 	rs := NewRedisCache[string](client, redisExpiration)
 	cc := NewChainCache[string](ms, rs)
@@ -76,6 +74,32 @@ func TestChainCache_SetAndGet(t *testing.T) {
 				t.Errorf("ChainCache.Get() got = %v, want = %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestChainCache_Delete(t *testing.T) {
+	ctx := context.Background()
+	ms1 := NewMemoryCache[string](time.Minute)
+	ms2 := NewMemoryCache[string](time.Minute)
+	cc := NewChainCache[string](ms1, ms2)
+
+	if err := cc.Set(ctx, "k1", "v1"); err != nil {
+		t.Errorf("ChainCache.Set() error = %v", err)
+	}
+
+	if err := cc.Delete(ctx, "k1"); err != nil {
+		t.Errorf("ChainCache.Delete() error = %v", err)
+	}
+
+	// both levels must be cleared
+	if _, err := cc.Get(ctx, "k1"); err != ErrRecordNotFound {
+		t.Errorf("ChainCache.Get() after Delete error = %v, want = %v", err, ErrRecordNotFound)
+	}
+	if _, err := ms1.Get(ctx, "k1"); err != ErrRecordNotFound {
+		t.Errorf("MemoryCache.Get() after Delete error = %v, want = %v", err, ErrRecordNotFound)
+	}
+	if _, err := ms2.Get(ctx, "k1"); err != ErrRecordNotFound {
+		t.Errorf("MemoryCache.Get() after Delete error = %v, want = %v", err, ErrRecordNotFound)
 	}
 }
 

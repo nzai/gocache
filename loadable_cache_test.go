@@ -1,6 +1,7 @@
 package gocache
 
 import (
+	"context"
 	"strings"
 	"sync"
 	"testing"
@@ -24,9 +25,7 @@ func (s appender) Get(key string) (string, error) {
 func TestLoadableCache_LoadFromMultiCaches_string(t *testing.T) {
 	expiration := 2 * time.Second
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-	})
+	redisClient := requireRedis(t)
 
 	tests := []struct {
 		name  string
@@ -92,9 +91,7 @@ func TestLoadableCache_LoadFromMultiCaches_string(t *testing.T) {
 func TestLoadableCache_LoadFromMultiCaches_StructPointer(t *testing.T) {
 	expiration := 2 * time.Second
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-	})
+	redisClient := requireRedis(t)
 
 	tests := []struct {
 		name  string
@@ -160,9 +157,7 @@ func TestLoadableCache_LoadFromMultiCaches_StructPointer(t *testing.T) {
 func TestLoadableCache_LoadFromMultiCaches_InParallel(t *testing.T) {
 	expiration := 5 * time.Second
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-	})
+	redisClient := requireRedis(t)
 
 	tests := []struct {
 		name  string
@@ -240,9 +235,7 @@ func TestLoadableCache_LoadFromMultiCaches_InParallel(t *testing.T) {
 func TestLoadableCache_LoadFromMultiCaches_InParallelCount(t *testing.T) {
 	expiration := 4 * time.Second
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-	})
+	redisClient := requireRedis(t)
 
 	tests := []struct {
 		name  string
@@ -290,9 +283,7 @@ func TestLoadableCache_LoadFromMultiCaches_InParallelCount(t *testing.T) {
 func TestLoadableCache_Load_Panic(t *testing.T) {
 	expiration := 4 * time.Second
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-	})
+	redisClient := requireRedis(t)
 
 	tests := []struct {
 		name  string
@@ -323,6 +314,41 @@ func TestLoadableCache_Load_Panic(t *testing.T) {
 				t.Errorf("LoadableCache.Load() error = %v", err)
 			}
 		})
+	}
+}
+
+func TestLoadableCache_Delete(t *testing.T) {
+	ctx := context.Background()
+	ms := NewMemoryCache[string](time.Minute)
+	lc := NewLoadableCache[string, string](ms)
+
+	a := appender{}
+	if _, err := lc.Load(a.Get, "k1"); err != nil {
+		t.Errorf("LoadableCache.Load() error = %v", err)
+	}
+
+	a.Append("updated")
+
+	// the cached value is still the one loaded before the append
+	got, err := lc.Load(a.Get, "k1")
+	if err != nil {
+		t.Errorf("LoadableCache.Load() error = %v", err)
+	}
+	if got != "" {
+		t.Errorf("LoadableCache.Load() got = %v, want = %v", got, "")
+	}
+
+	// after Delete the next Load must hit the load function again
+	if err := lc.Delete(ctx, "k1"); err != nil {
+		t.Errorf("LoadableCache.Delete() error = %v", err)
+	}
+
+	got, err = lc.Load(a.Get, "k1")
+	if err != nil {
+		t.Errorf("LoadableCache.Load() error = %v", err)
+	}
+	if got != "updated" {
+		t.Errorf("LoadableCache.Load() after Delete got = %v, want = %v", got, "updated")
 	}
 }
 

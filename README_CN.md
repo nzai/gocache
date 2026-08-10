@@ -13,10 +13,10 @@ golang loadable cache
 
 ## 内置的缓存
 
-* [MemroyCache](memory_cache.go) (基于本地内存的缓存)
+* [MemoryCache](memory_cache.go) (基于本地内存的缓存)
 * [RedisCache](redis_cache.go) (基于github.com/redis/go-redis/v9的缓存)
 * [ChainCache](chain_cache.go) (链式缓存，可以组合MemoryCache和RedisCache)
-* [LoadableCache](loadable_cache) (可自动更新的缓存)
+* [LoadableCache](loadable_cache.go) (可自动更新的缓存)
 * [LoadableL2Cache](loadable_l2_cache.go) (整合LoadableCache和ChainCache的缓存)
 
 # 安装

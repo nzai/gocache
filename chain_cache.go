@@ -4,11 +4,6 @@ import (
 	"context"
 )
 
-var (
-	// it can be changed and default value is 0.25
-	DecayFactor = 0.25
-)
-
 type ChainCacheValue[T any] struct {
 	Caches []Cache[T]
 	Key    string
@@ -20,7 +15,7 @@ type ChainCache[T any] struct {
 	singleFlight SingleFlight[string, T]
 }
 
-// NewChainCache instanciates a new cache that combine other caches
+// NewChainCache instantiates a new cache that combines other caches
 func NewChainCache[T any](caches ...Cache[T]) *ChainCache[T] {
 	if len(caches) == 0 {
 		panic("caches can't be empty")
@@ -68,4 +63,15 @@ func (c ChainCache[T]) Get(ctx context.Context, key string) (value T, err error)
 
 		return value, ErrRecordNotFound
 	}, key)
+}
+
+func (c ChainCache[T]) Delete(ctx context.Context, key string) error {
+	var err error
+	for index := len(c.caches) - 1; index >= 0; index-- {
+		if e := c.caches[index].Delete(ctx, key); e != nil && err == nil {
+			err = e
+		}
+	}
+
+	return err
 }

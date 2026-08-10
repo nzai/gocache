@@ -13,7 +13,7 @@ type LoadableCache[T, K any] struct {
 	singleFlight SingleFlight[T, K]
 }
 
-// NewLoadableCache instanciates a new cache that uses a function to load data
+// NewLoadableCache instantiates a new cache that uses a function to load data
 func NewLoadableCache[T, K any](cache Cache[K]) *LoadableCache[T, K] {
 	return &LoadableCache[T, K]{
 		cache:        cache,
@@ -56,6 +56,11 @@ func (c *LoadableCache[T, K]) Load(fn LoadFunction[T, K], arg T) (K, error) {
 
 		return object, nil
 	}, arg)
+}
+
+// Delete removes the object from cache, the next Load will hit the load function
+func (c *LoadableCache[T, K]) Delete(ctx context.Context, arg T) error {
+	return c.cache.Delete(ctx, GenerateCacheKey(arg))
 }
 
 // LoadCtx returns the object stored in cache with context

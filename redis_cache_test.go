@@ -8,6 +8,25 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// requireRedis returns a redis client connected to the local test instance,
+// or skips the test when no redis server is available at 127.0.0.1:6379.
+func requireRedis(t *testing.T) *redis.Client {
+	t.Helper()
+
+	client := redis.NewClient(&redis.Options{
+		Addr: "127.0.0.1:6379",
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	if err := client.Ping(ctx).Err(); err != nil {
+		t.Skipf("redis not available, skip: %v", err)
+	}
+
+	return client
+}
+
 func TestRedisCache_SetTTLAndGet(t *testing.T) {
 	expiration := time.Second
 	tests := []struct {
@@ -31,9 +50,7 @@ func TestRedisCache_SetTTLAndGet(t *testing.T) {
 	}}
 
 	ctx := context.Background()
-	client := redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-	})
+	client := requireRedis(t)
 
 	rs := NewRedisCache[string](client, expiration)
 	for _, tt := range tests {
@@ -54,6 +71,16 @@ func TestRedisCache_SetTTLAndGet(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestNewRedisCache_InvalidExpiration(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("NewRedisCache(0) expected panic, got nil")
+		}
+	}()
+
+	NewRedisCache[string](nil, 0)
 }
 
 func BenchmarkRedisCache_GetString(b *testing.B) {

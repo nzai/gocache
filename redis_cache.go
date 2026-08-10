@@ -10,16 +10,22 @@ import (
 )
 
 type RedisCache[T any] struct {
-	config     *CacheConfig
-	client     *redis.Client
-	expiration time.Duration
+	config          *CacheConfig
+	client          *redis.Client
+	expiration      time.Duration
+	expiryDeviation float64
 }
 
 func NewRedisCache[T any](client *redis.Client, expiration time.Duration, options ...CacheOption) *RedisCache[T] {
+	if expiration <= 0 {
+		panic("gocache: NewRedisCache expiration must be positive")
+	}
+
 	s := &RedisCache[T]{
-		config:     &CacheConfig{},
-		client:     client,
-		expiration: expiration,
+		config:          &CacheConfig{},
+		client:          client,
+		expiration:      expiration,
+		expiryDeviation: ExpiryDeviation,
 	}
 
 	for _, option := range options {
@@ -36,7 +42,7 @@ func (s RedisCache[T]) Set(ctx context.Context, key string, value T) error {
 	}
 
 	// interval [0.95, 1.05)
-	deviation := 1.0 - ExpiryDeviation + rand.Float64()*ExpiryDeviation*2
+	deviation := 1.0 - s.expiryDeviation + rand.Float64()*s.expiryDeviation*2
 	expiration := time.Duration(float64(s.expiration) * deviation)
 
 	if s.config.Prefix != "" {
@@ -65,4 +71,12 @@ func (s RedisCache[T]) Get(ctx context.Context, key string) (value T, err error)
 	}
 
 	return value, nil
+}
+
+func (s RedisCache[T]) Delete(ctx context.Context, key string) error {
+	if s.config.Prefix != "" {
+		key = s.config.Prefix + key
+	}
+
+	return s.client.Del(ctx, key).Err()
 }

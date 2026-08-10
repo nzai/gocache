@@ -241,3 +241,31 @@ func TestSingleFlight_DoExCtx(t *testing.T) {
 		})
 	}
 }
+
+func TestSingleFlight_Panic(t *testing.T) {
+	s := new(score)
+	sf := NewSingleFlight[*addRequest, *addResponse]()
+
+	wg := &sync.WaitGroup{}
+	var errCount int64
+	for index := 0; index < 100; index++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			_, err := sf.Do(s.Add, &addRequest{Value: -1})
+			if err == nil {
+				t.Errorf("SingleFlight.Do() error = nil, want non-nil")
+				return
+			}
+
+			atomic.AddInt64(&errCount, 1)
+		}()
+	}
+
+	wg.Wait()
+
+	if errCount != 100 {
+		t.Errorf("SingleFlight.Do() panic not propagated to all callers, got %d, want %d", errCount, 100)
+	}
+}

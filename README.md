@@ -14,10 +14,10 @@ golang loadable cache   [中文说明](README_CN.md)
 
 ## Built-in cache
 
-* [MemroyCache](memory_cache.go) (local memory based cache)
+* [MemoryCache](memory_cache.go) (local memory based cache)
 * [RedisCache](redis_cache.go) (github.com/redis/go-redis/v9 based cache)
 * [ChainCache](chain_cache.go) (chained cache, can combine MemoryCache and RedisCache)
-* [LoadableCache](loadable_cache) (auto-loadable cache)
+* [LoadableCache](loadable_cache.go) (auto-loadable cache)
 * [LoadableL2Cache](loadable_l2_cache.go) (cache that combines LoadableCache and ChainCache)
 
 # Installation
@@ -33,6 +33,7 @@ go get github.com/nzai/gocache
 ```go
 import (
     "context"
+    "log"
     "time"
 
     "github.com/nzai/gocache"
@@ -42,12 +43,12 @@ func main() {
     ctx := context.Background()
     mc := gocache.NewMemoryCache[string](10 * time.Second)
     err := mc.Set(ctx, "key1", "v1")
-    if err ! = nil {
+    if err != nil {
         log.Fatalf("failed to set cache value due to %v", err)
     }
 
     got, err := mc.Get(ctx, "key1")
-    Get(ctx, "key1") if err ! = nil {
+    if err != nil {
         log.Fatalf("failed to get cache value due to %v", err)
     }
 

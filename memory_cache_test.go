@@ -17,13 +17,13 @@ func TestMemoryCache_SetAndGet(t *testing.T) {
 		name:  "key没有过期",
 		key:   "k1",
 		value: "vvvvv",
-		sleep: 500 * time.Millisecond,
+		sleep: 300 * time.Millisecond,
 		want:  "vvvvv",
 	}, {
 		name:  "key过期",
 		key:   "k2",
 		value: "vvvvv",
-		sleep: 1200 * time.Millisecond,
+		sleep: 1500 * time.Millisecond,
 		want:  "",
 	}}
 
@@ -47,6 +47,64 @@ func TestMemoryCache_SetAndGet(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMemoryCache_Delete(t *testing.T) {
+	ctx := context.Background()
+	ms := NewMemoryCache[string](time.Second)
+
+	if err := ms.Set(ctx, "k1", "v1"); err != nil {
+		t.Errorf("MemoryCache.Set() error = %v", err)
+	}
+
+	if err := ms.Delete(ctx, "k1"); err != nil {
+		t.Errorf("MemoryCache.Delete() error = %v", err)
+	}
+
+	if _, err := ms.Get(ctx, "k1"); err != ErrRecordNotFound {
+		t.Errorf("MemoryCache.Get() after Delete error = %v, want = %v", err, ErrRecordNotFound)
+	}
+}
+
+func TestMemoryCache_WithKeyPrefix(t *testing.T) {
+	ctx := context.Background()
+	ms := NewMemoryCache[string](time.Second, WithKeyPrefix("prefix:"))
+
+	if err := ms.Set(ctx, "k1", "v1"); err != nil {
+		t.Errorf("MemoryCache.Set() error = %v", err)
+	}
+
+	// the prefix is applied transparently, the unprefixed key still hits
+	got, err := ms.Get(ctx, "k1")
+	if err != nil {
+		t.Errorf("MemoryCache.Get() error = %v", err)
+	}
+	if got != "v1" {
+		t.Errorf("MemoryCache.Get() got = %v, want = %v", got, "v1")
+	}
+
+	// a key that already carries the prefix is treated as a different key
+	if _, err := ms.Get(ctx, "prefix:k1"); err != ErrRecordNotFound {
+		t.Errorf("MemoryCache.Get() with prefix error = %v, want = %v", err, ErrRecordNotFound)
+	}
+
+	if err := ms.Delete(ctx, "k1"); err != nil {
+		t.Errorf("MemoryCache.Delete() error = %v", err)
+	}
+
+	if _, err := ms.Get(ctx, "k1"); err != ErrRecordNotFound {
+		t.Errorf("MemoryCache.Get() after Delete error = %v, want = %v", err, ErrRecordNotFound)
+	}
+}
+
+func TestNewMemoryCache_InvalidExpiration(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("NewMemoryCache(0) expected panic, got nil")
+		}
+	}()
+
+	NewMemoryCache[string](0)
 }
 
 func BenchmarkMemoryCache_GetString(b *testing.B) {

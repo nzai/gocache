@@ -1,7 +1,7 @@
 package gocache
 
 import (
-	"crypto"
+	"crypto/md5"
 	"fmt"
 	"reflect"
 )
@@ -15,10 +15,10 @@ type CacheKeyGenerator interface {
 // if its type is other than string
 func GenerateCacheKey(arg any) string {
 	switch v := arg.(type) {
-	case string:
-		return v
 	case CacheKeyGenerator:
 		return v.GetCacheKey()
+	case string:
+		return v
 	default:
 		return checksum(arg)
 	}
@@ -26,7 +26,7 @@ func GenerateCacheKey(arg any) string {
 
 // checksum hashes a given object into a string
 func checksum(arg any) string {
-	digester := crypto.MD5.New()
+	digester := md5.New()
 	fmt.Fprint(digester, reflect.TypeOf(arg))
 	fmt.Fprint(digester, arg)
 	hash := digester.Sum(nil)

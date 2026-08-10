@@ -2,6 +2,7 @@ package gocache
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -80,6 +81,11 @@ func (g *singleFlightGroup[T, K]) createCall(key string) (c *call[K], done bool)
 
 func (g *singleFlightGroup[T, K]) makeCall(c *call[K], key string, fn LoadFunction[T, K], arg T) {
 	defer func() {
+		if r := recover(); r != nil {
+			// convert the panic to an error so that waiters don't get a zero
+			// value with a nil error
+			c.err = fmt.Errorf("single flight function panic: %v", r)
+		}
 		g.lock.Lock()
 		delete(g.calls, key)
 		g.lock.Unlock()
@@ -91,6 +97,11 @@ func (g *singleFlightGroup[T, K]) makeCall(c *call[K], key string, fn LoadFuncti
 
 func (g *singleFlightGroup[T, K]) makeCallCtx(ctx context.Context, c *call[K], key string, fn LoadFunctionCtx[T, K], arg T) {
 	defer func() {
+		if r := recover(); r != nil {
+			// convert the panic to an error so that waiters don't get a zero
+			// value with a nil error
+			c.err = fmt.Errorf("single flight function panic: %v", r)
+		}
 		g.lock.Lock()
 		delete(g.calls, key)
 		g.lock.Unlock()

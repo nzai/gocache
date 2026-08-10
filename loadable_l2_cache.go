@@ -11,6 +11,10 @@ type LoadableL2Cache[T, K any] struct {
 }
 
 func NewLoadableL2Cache[T, K any](client *redis.Client, expiration time.Duration) *LoadableL2Cache[T, K] {
+	if expiration <= 0 {
+		panic("gocache: NewLoadableL2Cache expiration must be positive")
+	}
+
 	return &LoadableL2Cache[T, K]{
 		NewLoadableCache[T, K](
 			NewChainCache[K](
